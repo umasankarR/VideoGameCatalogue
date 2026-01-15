@@ -52,7 +52,7 @@ This solution uses **Central Package Management** (CPM) via `Directory.Packages.
 
 ### Prerequisites
 - .NET 10 SDK
-- SQL Server (LocalDB, Express, or Full)
+- SQL Server (LocalDB, Express)
 
 ### Build the Solution
 ```bash
