@@ -6,7 +6,6 @@ namespace Application.VideoGames.Queries.GetAllVideoGames;
 
 /// <summary>
 /// Query to get paginated video games
-/// Used for browsing page with pagination support
 /// </summary>
 public class GetAllVideoGamesQuery : IRequest<PagedResult<VideoGameDto>>
 {

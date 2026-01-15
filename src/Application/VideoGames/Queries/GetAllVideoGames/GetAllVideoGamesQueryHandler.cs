@@ -37,7 +37,7 @@ public class GetAllVideoGamesQueryHandler : IRequestHandler<GetAllVideoGamesQuer
             IsActive = vg.IsActive,
             CreatedAt = vg.CreatedAt,
             UpdatedAt = vg.UpdatedAt
-        });
+        }).ToList();
 
         return new PagedResult<VideoGameDto>
         {

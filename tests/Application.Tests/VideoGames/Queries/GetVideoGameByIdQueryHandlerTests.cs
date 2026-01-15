@@ -22,7 +22,6 @@ public class GetVideoGameByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnVideoGameDto_WhenGameExists()
     {
-        // Arrange
         var gameId = 1L;
         var game = CreateVideoGame(gameId, "Test Game", Genre.Action);
 
@@ -32,10 +31,8 @@ public class GetVideoGameByIdQueryHandlerTests
 
         var query = new GetVideoGameByIdQuery(gameId);
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(gameId);
         result.Title.Should().Be("Test Game");
@@ -44,7 +41,6 @@ public class GetVideoGameByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNull_WhenGameDoesNotExist()
     {
-        // Arrange
         var gameId = 999L;
 
         _repositoryMock
@@ -63,7 +59,6 @@ public class GetVideoGameByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldMapAllProperties_Correctly()
     {
-        // Arrange
         var gameId = 1L;
         var releaseDate = new DateTime(2024, 6, 15);
         var createdAt = DateTime.UtcNow.AddDays(-10);
@@ -92,10 +87,8 @@ public class GetVideoGameByIdQueryHandlerTests
 
         var query = new GetVideoGameByIdQuery(gameId);
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(gameId);
         result.Title.Should().Be("The Legend of Test");
@@ -116,7 +109,6 @@ public class GetVideoGameByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldCallRepository_WithCorrectId()
     {
-        // Arrange
         var gameId = 1L;
 
         _repositoryMock
@@ -125,10 +117,8 @@ public class GetVideoGameByIdQueryHandlerTests
 
         var query = new GetVideoGameByIdQuery(gameId);
 
-        // Act
         await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         _repositoryMock.Verify(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()), Times.Once);
     }
 

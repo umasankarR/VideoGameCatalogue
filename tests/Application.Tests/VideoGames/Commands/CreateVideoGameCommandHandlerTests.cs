@@ -24,7 +24,6 @@ public class CreateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateVideoGame_AndReturnDto()
     {
-        // Arrange
         var command = new CreateVideoGameCommand
         {
             Title = "New Game",
@@ -42,7 +41,7 @@ public class CreateVideoGameCommandHandlerTests
             .Setup(r => r.AddAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) =>
             {
-                game.Id = 1; // Simulate database auto-increment
+                game.Id = 1; 
                 return game;
             });
 
@@ -50,10 +49,8 @@ public class CreateVideoGameCommandHandlerTests
             .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result.Title.Should().Be("New Game");
         result.Publisher.Should().Be("Test Publisher");
@@ -68,7 +65,6 @@ public class CreateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldGenerateId_ForId()
     {
-        // Arrange
         var command = CreateCommand();
         VideoGame? capturedGame = null;
 
@@ -77,10 +73,8 @@ public class CreateVideoGameCommandHandlerTests
             .Callback<VideoGame, CancellationToken>((game, _) => capturedGame = game)
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         capturedGame.Should().NotBeNull();
         capturedGame!.Id.Should().BeGreaterThanOrEqualTo(0);
     }
@@ -88,7 +82,6 @@ public class CreateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldSetCreatedAt_ToUtcNow()
     {
-        // Arrange
         var command = CreateCommand();
         var beforeTest = DateTime.UtcNow;
         VideoGame? capturedGame = null;
@@ -98,11 +91,9 @@ public class CreateVideoGameCommandHandlerTests
             .Callback<VideoGame, CancellationToken>((game, _) => capturedGame = game)
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
         var afterTest = DateTime.UtcNow;
 
-        // Assert
         capturedGame.Should().NotBeNull();
         capturedGame!.CreatedAt.Should().BeOnOrAfter(beforeTest);
         capturedGame.CreatedAt.Should().BeOnOrBefore(afterTest);
@@ -111,7 +102,6 @@ public class CreateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldSetIsActive_ToTrue()
     {
-        // Arrange
         var command = CreateCommand();
         VideoGame? capturedGame = null;
 
@@ -120,10 +110,8 @@ public class CreateVideoGameCommandHandlerTests
             .Callback<VideoGame, CancellationToken>((game, _) => capturedGame = game)
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         capturedGame.Should().NotBeNull();
         capturedGame!.IsActive.Should().BeTrue();
     }
@@ -131,34 +119,28 @@ public class CreateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCallRepository_AddAsync()
     {
-        // Arrange
         var command = CreateCommand();
 
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _repositoryMock.Verify(r => r.AddAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_ShouldCallUnitOfWork_SaveChangesAsync()
     {
-        // Arrange
         var command = CreateCommand();
 
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

@@ -24,7 +24,6 @@ public class UpdateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateVideoGame_WhenGameExists()
     {
-        // Arrange
         var gameId = 1L;
         var existingGame = CreateExistingGame(gameId);
 
@@ -44,17 +43,15 @@ public class UpdateVideoGameCommandHandlerTests
         };
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingGame);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.Title.Should().Be("Updated Title");
         result.Publisher.Should().Be("Updated Publisher");
@@ -67,43 +64,37 @@ public class UpdateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNull_WhenGameDoesNotExist()
     {
-        // Arrange
         var gameId = 999L;
         var command = CreateCommand(gameId);
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame?)null);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public async Task Handle_ShouldSetUpdatedAt_ToUtcNow()
     {
-        // Arrange
         var gameId = 1L;
         var existingGame = CreateExistingGame(gameId);
         var command = CreateCommand(gameId);
         var beforeTest = DateTime.UtcNow;
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingGame);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
         var afterTest = DateTime.UtcNow;
 
-        // Assert
         result.Should().NotBeNull();
         result!.UpdatedAt.Should().NotBeNull();
         result.UpdatedAt!.Value.Should().BeOnOrAfter(beforeTest);
@@ -113,48 +104,41 @@ public class UpdateVideoGameCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldNotCallSaveChanges_WhenGameDoesNotExist()
     {
-        // Arrange
         var gameId = 999L;
         var command = CreateCommand(gameId);
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame?)null);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_ShouldCallSaveChanges_WhenGameExists()
     {
-        // Arrange
         var gameId = 1L;
         var existingGame = CreateExistingGame(gameId);
         var command = CreateCommand(gameId);
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingGame);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_ShouldUpdateIsActive_WhenChanged()
     {
-        // Arrange
         var gameId = 1L;
         var existingGame = CreateExistingGame(gameId);
         existingGame.IsActive = true;
@@ -163,17 +147,15 @@ public class UpdateVideoGameCommandHandlerTests
         command.IsActive = false;
 
         _repositoryMock
-            .Setup(r => r.GetByIdAsync(gameId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdForUpdateAsync(gameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingGame);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(It.IsAny<VideoGame>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VideoGame game, CancellationToken _) => game);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.IsActive.Should().BeFalse();
     }

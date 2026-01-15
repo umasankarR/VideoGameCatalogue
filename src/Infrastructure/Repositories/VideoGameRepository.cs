@@ -17,6 +17,8 @@ public class VideoGameRepository : IVideoGameRepository
     public async Task<IEnumerable<VideoGame>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.VideoGames
+            .AsNoTracking()
+            .Where(vg => vg.IsActive)
             .OrderByDescending(vg => vg.CreatedAt)
             .ToListAsync(cancellationToken);
     }
@@ -26,18 +28,29 @@ public class VideoGameRepository : IVideoGameRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var totalCount = await _context.VideoGames.CountAsync(cancellationToken);
+        var baseQuery = _context.VideoGames
+            .AsNoTracking()
+            .Where(vg => vg.IsActive);
 
-        var items = await _context.VideoGames
+        var items = await baseQuery
             .OrderByDescending(vg => vg.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+        var totalCount = await baseQuery.CountAsync(cancellationToken);
+
         return (items, totalCount);
     }
 
     public async Task<VideoGame?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await _context.VideoGames
+            .AsNoTracking()
+            .FirstOrDefaultAsync(vg => vg.Id == id, cancellationToken);
+    }
+
+    public async Task<VideoGame?> GetByIdForUpdateAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.VideoGames
             .FirstOrDefaultAsync(vg => vg.Id == id, cancellationToken);
@@ -57,7 +70,7 @@ public class VideoGameRepository : IVideoGameRepository
 
     public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
-        var videoGame = await GetByIdAsync(id, cancellationToken);
+        var videoGame = await GetByIdForUpdateAsync(id, cancellationToken);
 
         if (videoGame == null)
             return false;

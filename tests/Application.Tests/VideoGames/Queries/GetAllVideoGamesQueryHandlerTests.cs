@@ -24,7 +24,6 @@ public class GetAllVideoGamesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnPagedResult_WhenGamesExist()
     {
-        // Arrange
         var games = new List<VideoGame>
         {
             CreateVideoGame("Game 1", Genre.Action),
@@ -37,10 +36,8 @@ public class GetAllVideoGamesQueryHandlerTests
 
         var query = new GetAllVideoGamesQuery { PageNumber = 1, PageSize = 10 };
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
@@ -51,17 +48,14 @@ public class GetAllVideoGamesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnEmptyResult_WhenNoGamesExist()
     {
-        // Arrange
         _repositoryMock
             .Setup(r => r.GetPagedAsync(1, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<VideoGame>(), 0));
 
         var query = new GetAllVideoGamesQuery { PageNumber = 1, PageSize = 10 };
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);
@@ -70,7 +64,6 @@ public class GetAllVideoGamesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldMapAllProperties_Correctly()
     {
-        // Arrange
         var game = CreateVideoGame("Test Game", Genre.Adventure);
         game.Publisher = "Test Publisher";
         game.Developer = "Test Developer";
@@ -83,10 +76,8 @@ public class GetAllVideoGamesQueryHandlerTests
 
         var query = new GetAllVideoGamesQuery { PageNumber = 1, PageSize = 10 };
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var dto = result.Items.First();
         dto.Title.Should().Be("Test Game");
         dto.Publisher.Should().Be("Test Publisher");
@@ -100,7 +91,6 @@ public class GetAllVideoGamesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldCalculateTotalPages_Correctly()
     {
-        // Arrange
         var games = new List<VideoGame> { CreateVideoGame("Game 1", Genre.Action) };
 
         _repositoryMock
@@ -109,10 +99,8 @@ public class GetAllVideoGamesQueryHandlerTests
 
         var query = new GetAllVideoGamesQuery { PageNumber = 1, PageSize = 10 };
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.TotalPages.Should().Be(3); // 25 items / 10 per page = 3 pages
     }
 

@@ -17,7 +17,7 @@ public class UpdateVideoGameCommandHandler : IRequestHandler<UpdateVideoGameComm
 
     public async Task<VideoGameDto?> Handle(UpdateVideoGameCommand request, CancellationToken cancellationToken)
     {
-        var videoGame = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var videoGame = await _repository.GetByIdForUpdateAsync(request.Id, cancellationToken);
         if (videoGame == null)
             return null;
 
